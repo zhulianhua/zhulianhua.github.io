@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>在Windows上安装Boost | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="官方文档:Getting Started on Windows
+Boost里面有很多库，分为需要编译的和不需要编译的（header file only）。
+如果只需要使用不需要编译的库（如Boost.PropertyTree）则只需要从官方网站下载源代码解压缩即可使用。Boost官网上的Downloads-&amp;gt;Latest Rease-&amp;gt;Version x.xx.x 就是下载链接。解压后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Windows上安装Boost">
+<meta property="og:url" content="http://yoursite.com/2016/09/26/install-boost-windows/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="官方文档:Getting Started on Windows
+Boost里面有很多库，分为需要编译的和不需要编译的（header file only）。
+如果只需要使用不需要编译的库（如Boost.PropertyTree）则只需要从官方网站下载源代码解压缩即可使用。Boost官网上的Downloads-&amp;gt;Latest Rease-&amp;gt;Version x.xx.x 就是下载链接。解压后">
+<meta property="og:updated_time" content="2016-09-26T06:44:05.575Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在Windows上安装Boost">
+<meta name="twitter:description" content="官方文档:Getting Started on Windows
+Boost里面有很多库，分为需要编译的和不需要编译的（header file only）。
+如果只需要使用不需要编译的库（如Boost.PropertyTree）则只需要从官方网站下载源代码解压缩即可使用。Boost官网上的Downloads-&amp;gt;Latest Rease-&amp;gt;Version x.xx.x 就是下载链接。解压后">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS-каналы"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Поиск"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-install-boost-windows" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/09/26/install-boost-windows/" class="article-date">
+  <time datetime="2016-09-26T06:40:20.042Z" itemprop="datePublished">2016-09-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      在Windows上安装Boost
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>官方文档:<a href="http://www.boost.org/doc/libs/1_61_0/more/getting_started/windows.html" target="_blank" rel="external">Getting Started on Windows</a></p>
+<p>Boost里面有很多库，分为需要编译的和不需要编译的（header file only）。</p>
+<p>如果只需要使用不需要编译的库（如Boost.PropertyTree）则只需要从官方网站下载源代码解压缩即可使用。<a href="http://www.boost.org/" target="_blank" rel="external">Boost官网</a>上的Downloads-&gt;Latest Rease-&gt;Version x.xx.x 就是下载链接。解压后放到一个目录，比如D:\boost盘。这里以1.61.0版本为例，则安装目录为D:\boost\boost_1_61_0。在Visual Studio 的项目Properties里面的VC++ Directories-&gt;Include Directories 里面添加条目D:\boost\boost_1_61_0即可完成编译。可以发现<code>D:\boost\boost_1_61_0\</code>目录是空的，因为官方发布的source pack里面是没有预编译的。</p>
+<p>如果需要使用需要编译的库，如 Boost.FileSystem或者Boost.ProgramOptions，则还需要编译这些库。Boost目录(<code>D:\boost\boost_1_61_0</code>)里面的<code>booststrap.bat</code>脚本就是编译脚本。这里我们参照<a href="https://studiofreya.com/2016/09/01/how-to-build-boost-1-61-with-visual-studio-2015/" target="_blank" rel="external">这篇博文</a>使用Visual Studio 2015来编译boost_1_61_0。</p>
+<ol>
+<li>在D:\boost目录里面创建脚本<code>build_boost_1_61_0_vs2015.bat</code>,内容如下：</li>
+</ol>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">call</span> "<span class="variable">%VS140COMNTOOLS%</span>..\..\VC\vcvarsall.bat" x86</div><div class="line"> </div><div class="line"><span class="built_in">set</span> cores=<span class="variable">%NUMBER_OF_PROCESSORS%</span></div><div class="line"><span class="built_in">echo</span> Building boost with <span class="variable">%cores%</span> cores</div><div class="line"> </div><div class="line"><span class="built_in">cd</span> boost_1_61_0</div><div class="line"><span class="keyword">call</span> bootstrap.bat</div><div class="line"><span class="comment"> </span></div><div class="line">rem Most libraries can be static libs</div><div class="line">b2 -j<span class="variable">%cores%</span> toolset=msvc-<span class="number">14</span>.<span class="number">0</span> address-model=<span class="number">64</span> architecture=x86 link=static threading=multi runtime-link=shared --build-<span class="built_in">type</span>=minimal stage --stagedir=stage/x64 </div><div class="line">b2 -j<span class="variable">%cores%</span> toolset=msvc-<span class="number">14</span>.<span class="number">0</span> address-model=<span class="number">32</span> architecture=x86 link=static threading=multi runtime-link=shared --build-<span class="built_in">type</span>=minimal stage --stagedir=stage/win32</div><div class="line"> </div><div class="line"><span class="built_in">pause</span></div></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/09/26/install-boost-windows/" data-id="citjopy080002osno25mx1zux" class="article-share-link">Поделиться</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/09/26/My-New-Post/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Предыдущий</strong>
+      <div class="article-nav-title">My New Post</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Архив</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">September 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Недавние записи</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/09/26/install-boost-windows/">在Windows上安装Boost</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/My-New-Post/">My New Post</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 John Doe<br>
+      Создано с помощью <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
