@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenFOAM 创建程序和使用动态链接库 | Lianhua Zhu&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="创建应用程序创建用户applications目录, 创建HelloWorld目录作为应用程序的源代码目录1234$ mkdir –p $FOAM_RUN/../applications$ cd $FOAM_RUN/../applications$ mkdir HelloWorld$ cd HelloWorld
+源程序文件1$ cat HelloWorld.C
+123456789#include &quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenFOAM 创建程序和使用动态链接库">
+<meta property="og:url" content="http://yoursite.com/2016/09/29/of-hello-world/index.html">
+<meta property="og:site_name" content="Lianhua Zhu's Blog">
+<meta property="og:description" content="创建应用程序创建用户applications目录, 创建HelloWorld目录作为应用程序的源代码目录1234$ mkdir –p $FOAM_RUN/../applications$ cd $FOAM_RUN/../applications$ mkdir HelloWorld$ cd HelloWorld
+源程序文件1$ cat HelloWorld.C
+123456789#include &quot;">
+<meta property="og:updated_time" content="2016-09-29T04:37:52.488Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenFOAM 创建程序和使用动态链接库">
+<meta name="twitter:description" content="创建应用程序创建用户applications目录, 创建HelloWorld目录作为应用程序的源代码目录1234$ mkdir –p $FOAM_RUN/../applications$ cd $FOAM_RUN/../applications$ mkdir HelloWorld$ cd HelloWorld
+源程序文件1$ cat HelloWorld.C
+123456789#include &quot;">
+  
+    <link rel="alternate" href="/atom.xml" title="Lianhua Zhu&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lianhua Zhu&#39;s Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-of-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/09/29/of-hello-world/" class="article-date">
+  <time datetime="2016-09-29T00:55:23.000Z" itemprop="datePublished">2016-09-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OpenFOAM 创建程序和使用动态链接库
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="创建应用程序"><a href="#创建应用程序" class="headerlink" title="创建应用程序"></a>创建应用程序</h2><p>创建用户applications目录, 创建HelloWorld目录作为应用程序的源代码目录<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ mkdir –p <span class="variable">$FOAM_RUN</span>/../applications</div><div class="line">$ <span class="built_in">cd</span> <span class="variable">$FOAM_RUN</span>/../applications</div><div class="line">$ mkdir HelloWorld</div><div class="line">$ <span class="built_in">cd</span> HelloWorld</div></pre></td></tr></table></figure></p>
+<p>源程序文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat HelloWorld.C</div></pre></td></tr></table></figure></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"fvCFD.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    Info &lt;&lt; <span class="string">"Hello world!"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    Info &lt;&lt; <span class="string">"Dear FOAMers,"</span> &lt;&lt; nl </div><div class="line">        &lt;&lt; <span class="string">"I come from Wuhan, China"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编写Make文件，包括Make/files和Make/options。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/files</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">HelloWorld.C</div><div class="line"></div><div class="line">EXE = $(FOAM_USER_APPBIN)/HelloWorld</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/options</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = -lfiniteVolume \</div><div class="line">           -lmeshTools</div></pre></td></tr></table></figure>
+<p>使用wmake编译<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake</div></pre></td></tr></table></figure></p>
+<p>运行程序<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="variable">$FOAM_USER_APPBIN</span>/HelloWorld</div></pre></td></tr></table></figure></p>
+<h2 id="创建并链接库"><a href="#创建并链接库" class="headerlink" title="创建并链接库"></a>创建并链接库</h2><p>创建一个叫MyLib的动态链接库。库的头文件，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.H</div></pre></td></tr></table></figure></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> MyLib_H</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MyLib_H</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"fvCFD.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funA</span><span class="params">()</span></span>;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funB</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
+<p>库的源文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.C</div></pre></td></tr></table></figure></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MyLib.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funA</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    Info &lt;&lt; <span class="string">"I'm from MyLib, funA()"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funB</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    Info &lt;&lt; <span class="string">"I'm from MyLib, funB()"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>库的Make文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/Make/files</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">MyLib.C</div><div class="line"></div><div class="line">LIB = $(FOAM_USER_LIBBIN)/libMyLib</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/Make/options</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = -lfiniteVolume \</div><div class="line">           -lmeshTools</div></pre></td></tr></table></figure>
+<p>在HelloWorld的<code>Make/options</code>里面添加库位置(-L选项)、库头文件位置(-I)、库文件(-l)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/options</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude \</div><div class="line">    -IMyLib/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = \</div><div class="line">    -L$(FOAM_USER_LIBBIN) \</div><div class="line">    -lfiniteVolume \</div><div class="line">    -lmeshTools \</div><div class="line">    -lMyLib</div></pre></td></tr></table></figure>
+<p>先编译动态链接库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake libso MyLib</div></pre></td></tr></table></figure></p>
+<p>再编译HelloWorld<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake</div></pre></td></tr></table></figure></p>
+<p>最后运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="variable">$FOAM_USER_APPBIN</span>/HelloWorld</div></pre></td></tr></table></figure></p>
+<p>输出如下结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div></pre></td></tr></table></figure></p>
+<p>DONE!!!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citnxmizh00052onooznvczju" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/09/29/of-use-runtime-md/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          OpenFOAM 使用Time 控制程序主循环
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/09/28/OpenFOAM-Learning-Resources/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">OpenFOAM 学习资料</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/OpenFOAM/" style="font-size: 10px;">OpenFOAM</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/09/29/of-use-runtime-md/">OpenFOAM 使用Time 控制程序主循环</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/29/of-hello-world/">OpenFOAM 创建程序和使用动态链接库</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/28/OpenFOAM-Learning-Resources/">OpenFOAM 学习资料</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/install-boost-on-windows/">在Windows上安装Boost</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lianhua Zhu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

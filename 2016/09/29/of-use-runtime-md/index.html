@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenFOAM 使用Time 控制程序主循环 | Lianhua Zhu&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的system/controlDict文件是如何跟我们的应用程序关联起来的。
+先看一个例子$FOAM_SOLVERS/basic/laplacianFoam这个求解Laplace方程的标准求解器里面的是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenFOAM 使用Time 控制程序主循环">
+<meta property="og:url" content="http://yoursite.com/2016/09/29/of-use-runtime-md/index.html">
+<meta property="og:site_name" content="Lianhua Zhu's Blog">
+<meta property="og:description" content="接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的system/controlDict文件是如何跟我们的应用程序关联起来的。
+先看一个例子$FOAM_SOLVERS/basic/laplacianFoam这个求解Laplace方程的标准求解器里面的是">
+<meta property="og:updated_time" content="2016-09-29T05:32:35.896Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenFOAM 使用Time 控制程序主循环">
+<meta name="twitter:description" content="接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的system/controlDict文件是如何跟我们的应用程序关联起来的。
+先看一个例子$FOAM_SOLVERS/basic/laplacianFoam这个求解Laplace方程的标准求解器里面的是">
+  
+    <link rel="alternate" href="/atom.xml" title="Lianhua Zhu&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lianhua Zhu&#39;s Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-of-use-runtime-md" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/09/29/of-use-runtime-md/" class="article-date">
+  <time datetime="2016-09-29T02:24:49.000Z" itemprop="datePublished">2016-09-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OpenFOAM 使用Time 控制程序主循环
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的<code>system/controlDict</code>文件是如何跟我们的应用程序关联起来的。</p>
+<p>先看一个例子<code>$FOAM_SOLVERS/basic/laplacianFoam</code>这个求解Laplace方程的标准求解器里面的是怎么弄的。</p>
+<p>可以发现<code>laplacianFoam.C</code> 开头是这样的（其实大多数求解器都是这样开头的）：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"setRootCase.H"</span></span></div><div class="line"></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createTime.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createMesh.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createFields.H"</span></span></div><div class="line"></div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>后面的两行应该是创建网格和物理场，这里我们暂时不讨论。主要看<code>setRootCase.H</code>和<code>createTime.H</code>。<br>这两个文件在当前目录<code>$FOAM_SOLVERS/basic/laplacianFoam</code>目录里面找不到、去<code>Make/options</code>里面看看头文件位置发现应该是在$FOAM_SRC/finiteVoluem/lnInclude下面，或者直接使用文件查找命令find在<code>$FOAM_SRC</code>目录按文件名查找它们。比如这个<code>setRootCase.H</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ find $FOAM_SRC -name setRootCase.H </div><div class="line">$FOAM_SRC/OpenFOAM/include/setRootCase.H</div><div class="line">$FOAM_SRC/OpenFOAM/lnInclude/setRootCase.H</div></pre></td></tr></table></figure></p>
+<p>我这里的输出把用$FOAM_SRC替换了路径前缀<code>/home/lhzhu/OpenFOAM/OpenFOAM-2.4.0/src</code>。这里输出有两行，其实第二个文件只是第一个文件的链接（对应Windows的快捷方式）。下面这个命令可以验证。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls <span class="_">-l</span> <span class="variable">$FOAM_SRC</span>/OpenFOAM/lnInclude/<span class="built_in">set</span>RootCase.H</div></pre></td></tr></table></figure>
+<p>我们可以看看这个<code>setRootCase.H</code>和<code>createTime.H</code>的内容:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat <span class="variable">$FOAM_SRC</span>/OpenFOAM/lnInclude/<span class="built_in">set</span>RootCase.H</div></pre></td></tr></table></figure></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">// setRootCase.H</span></div><div class="line"><span class="comment">// ~~~~~~~~~~~~~</span></div><div class="line"></div><div class="line">    Foam::<span class="function">argList <span class="title">args</span><span class="params">(argc, argv)</span></span>;</div><div class="line">    <span class="keyword">if</span> (!args.checkRootCase())</div><div class="line">    &#123;</div><div class="line">        Foam::FatalError.<span class="built_in">exit</span>();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat <span class="variable">$FOAM_SRC</span>/OpenFOAM/lnInclude/createTime.H</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">// createTime.H</span></div><div class="line"><span class="comment">// ~~~~~~~~~~~~</span></div><div class="line"></div><div class="line">    Foam::Info&lt;&lt; <span class="string">"Create time\n"</span> &lt;&lt; Foam::<span class="built_in">endl</span>;</div><div class="line"></div><div class="line">    Foam::<span class="function">Time <span class="title">runTime</span><span class="params">(Foam::Time::controlDictName, args)</span></span>;</div></pre></td></tr></table></figure>
+<p>可以发现这两个文件非常简单，总共加起来就是几行。OpenFOAM把这两个文件放在这里是因为基本所有的求解器都要来这么几行。其实我们也完全可以手动把这几行手动加到main函数开头。<code>#include XXX.H</code>这种语句原本就是告诉编译器<em>预处理时把XXX.H文件的内容贴到此处</em>。</p>
+<p><code>#include &quot;createTime.H&quot;</code> 创建一个Time对象。我们通过这个对象和<code>system/controlDict</code>文件来让程序输出10句话。这跟让显式求解器程序往前推进10个时间步概念上类似。写显式求解器，去参考典型的可压缩求解器rhoCentralFoam, 看看里面是怎么推进时间步的。这个求解器在<code>$FOAM_SOLVERS/compressible/rhoCentralFoam</code>。可以发现是在main函数里面用<code>while(runTime.run()){runTime++; ...}</code> 这段代码来循环推进时间步的。</p>
+<p>现在我们接着改我们的HelloWorld程序。在<code>HelloWorld.C</code>的基础上加上前面讨论的这些行，让程序每一个都输出”Running…” 和当前的物理时间。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"setRootCase.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createTime.H"</span></span></div><div class="line"></div><div class="line">... </div><div class="line"></div><div class="line">    <span class="comment">// use runTime</span></div><div class="line">    Info &lt;&lt; <span class="string">"Starting time looping"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    <span class="keyword">while</span>(runTime.run())</div><div class="line">    &#123;</div><div class="line">    	runTime++;</div><div class="line">        Info &lt;&lt; <span class="string">"Running... "</span> &lt;&lt; <span class="string">"Time = "</span> &lt;&lt; runTime.timeName() &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">    Info &lt;&lt; <span class="string">"end!"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>物理时间可以用<code>runTime.timeName()</code>得到。</p>
+<p>再次<code>wmake</code>编译HelloWorld。</p>
+<p>接着我们来准备一个case目录来运行这个HelloWorld。前面开发程序的终端先不管， 另外开个ssh终端(命令窗口), </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ of240</div><div class="line">$ run</div><div class="line">$ mkdir -p HelloWorld/system</div><div class="line">$ <span class="built_in">cd</span> HelloWorld</div><div class="line">$ cp <span class="variable">$FOAM_TUTORIALS</span>/basic/laplacianFoam/flange/system/controlDict system</div></pre></td></tr></table></figure>
+<p>这里我们直接从一个教程算例中复制了controDict文件过来。接下来修改里面里面的endTime为1，deltaTime为0.1，表示时间步长为0.1，到时间为1时结束运行，这样就可以让程序主循环跑10次了。</p>
+<p>然后就可以运行HelloWorld看看结果了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
+<p>程序输出的主要部分如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">Create time</div><div class="line"></div><div class="line">Hello world!</div><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div><div class="line">Starting time looping</div><div class="line">Running... Time = 0.1</div><div class="line">Running... Time = 0.2</div><div class="line">Running... Time = 0.3</div><div class="line">Running... Time = 0.4</div><div class="line">Running... Time = 0.5</div><div class="line">Running... Time = 0.6</div><div class="line">Running... Time = 0.7</div><div class="line">Running... Time = 0.8</div><div class="line">Running... Time = 0.9</div><div class="line">Running... Time = 1</div><div class="line">end!</div></pre></td></tr></table></figure></p>
+<p>现在可以用controlDict控制我们的HelloWorld的主循环了。注意这里用到的时固定时间步长循环的方法，后面我们会讲到利用CFL数(Conant数)控制可变时间步长的方法。</p>
+<p>我们如果想在system/controlDict自定义新的控制参数，可以使用Time.controlDict()访问这些参数。下面我们分别在controlDict里面增加一个浮点数(testParameter)和一个整数参数(labelTp)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ tail  5 </div><div class="line">timePrecision   6;</div><div class="line"></div><div class="line">runTimeModifiable true;</div><div class="line"></div><div class="line">testParameter   1.4;</div><div class="line"></div><div class="line">labelTp   2;</div><div class="line"></div><div class="line"></div><div class="line">// ************************************************************************* //</div></pre></td></tr></table></figure></p>
+<p>在HelloWorld程序里面通过Time.controlDict()对象可以访问这些参数,<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// self-defined control parameter</span></div><div class="line">scalar tp =  runTime.controlDict().lookupOrDefault&lt;scalar&gt;(<span class="string">"testParameter"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"testParameter = "</span> &lt;&lt; tp &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">label ltp =  runTime.controlDict().lookupOrDefault&lt;label&gt;(<span class="string">"labelTp"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"labelTp = "</span> &lt;&lt; ltp &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+<p>注意： OpenFOAM里面使用label表示正整数、使用scalar表示浮点数，而scalar默认就是double类型的。</p>
+<p>当然Time.controlDict也可以访问其他通用的控制参数。 另外，虽然这个Time.controlDict()机制可以往程序里面传递参数，但是我们一般不把时间步长控制以外的程序参数比如类似物理粘性放到这个system/controlDict里面，而是单独弄一个输出输出字典文件(IOdictionary)来读参数。本身system/controlDict在OpenFOAM内部也表示为IOdictionary对象。</p>
+<p>DONE!!!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citnxmizh00062onora3qwpa4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/09/29/of-hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">OpenFOAM 创建程序和使用动态链接库</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/OpenFOAM/" style="font-size: 10px;">OpenFOAM</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/09/29/of-use-runtime-md/">OpenFOAM 使用Time 控制程序主循环</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/29/of-hello-world/">OpenFOAM 创建程序和使用动态链接库</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/28/OpenFOAM-Learning-Resources/">OpenFOAM 学习资料</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/26/install-boost-on-windows/">在Windows上安装Boost</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lianhua Zhu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
