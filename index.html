@@ -107,16 +107,16 @@
 <p>然后就可以运行HelloWorld看看结果了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
 <p>程序输出的主要部分如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">Create time</div><div class="line"></div><div class="line">Hello world!</div><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div><div class="line">Starting time looping</div><div class="line">Running... Time = 0.1</div><div class="line">Running... Time = 0.2</div><div class="line">Running... Time = 0.3</div><div class="line">Running... Time = 0.4</div><div class="line">Running... Time = 0.5</div><div class="line">Running... Time = 0.6</div><div class="line">Running... Time = 0.7</div><div class="line">Running... Time = 0.8</div><div class="line">Running... Time = 0.9</div><div class="line">Running... Time = 1</div><div class="line">end!</div></pre></td></tr></table></figure></p>
 <p>现在可以用controlDict控制我们的HelloWorld的主循环了。注意这里用到的时固定时间步长循环的方法，后面我们会讲到利用CFL数(Conant数)控制可变时间步长的方法。</p>
-<p>我们如果想在system/controlDict自定义新的控制参数，可以使用Time.controlDict()访问这些参数。下面我们分别在controlDict里面增加一个浮点数(testParameter)和一个整数参数(labelTp)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ tail  5 </div><div class="line">timePrecision   6;</div><div class="line"></div><div class="line">runTimeModifiable true;</div><div class="line"></div><div class="line">testParameter   1.4;</div><div class="line"></div><div class="line">labelTp   2;</div><div class="line"></div><div class="line"></div><div class="line">// ************************************************************************* //</div></pre></td></tr></table></figure></p>
+<p>我们如果想在system/controlDict自定义新的控制参数，可以使用Time.controlDict()访问这些参数。下面我们分别在controlDict里面增加一个浮点数(testParameter)和一个整数参数(labelTp)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ tail  system/controlDict</div><div class="line">timePrecision   6;</div><div class="line"></div><div class="line">runTimeModifiable true;</div><div class="line"></div><div class="line">testParameter   1.4;</div><div class="line"></div><div class="line">labelTp   2;</div><div class="line"></div><div class="line"></div><div class="line">// ************************************************************************* //</div></pre></td></tr></table></figure></p>
 <p>在HelloWorld程序里面通过Time.controlDict()对象可以访问这些参数,<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// self-defined control parameter</span></div><div class="line">scalar tp =  runTime.controlDict().lookupOrDefault&lt;scalar&gt;(<span class="string">"testParameter"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"testParameter = "</span> &lt;&lt; tp &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">label ltp =  runTime.controlDict().lookupOrDefault&lt;label&gt;(<span class="string">"labelTp"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"labelTp = "</span> &lt;&lt; ltp &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
 <p>注意： OpenFOAM里面使用label表示正整数、使用scalar表示浮点数，而scalar默认就是double类型的。</p>
-<p>当然Time.controlDict也可以访问其他通用的控制参数。 另外，虽然这个Time.controlDict()机制可以往程序里面传递参数，但是我们一般不把时间步长控制以外的程序参数比如类似物理粘性放到这个system/controlDict里面，而是单独弄一个输出输出字典文件(IOdictionary)来读参数。本身system/controlDict在OpenFOAM内部也表示为IOdictionary对象。</p>
+<p>当然Time.controlDict也可以访问其他通用的控制参数。 另外，虽然这个Time.controlDict()机制可以往程序里面传递参数，但是我们一般不把时间步长控制以外的参数比如类似物理粘性放到这个system/controlDict里面，而是单独弄一个输出输出字典文件(IOdictionary)来读参数。本身system/controlDict在OpenFOAM内部也表示为IOdictionary对象。</p>
 <p>DONE!!!</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citnxmizh00062onora3qwpa4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citofslsy00060wnog850luaj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -158,27 +158,34 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/options</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = -lfiniteVolume \</div><div class="line">           -lmeshTools</div></pre></td></tr></table></figure>
 <p>使用wmake编译<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake</div></pre></td></tr></table></figure></p>
-<p>运行程序<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="variable">$FOAM_USER_APPBIN</span>/HelloWorld</div></pre></td></tr></table></figure></p>
-<h2 id="创建并链接库"><a href="#创建并链接库" class="headerlink" title="创建并链接库"></a>创建并链接库</h2><p>创建一个叫MyLib的动态链接库。库的头文件，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.H</div></pre></td></tr></table></figure></p>
+<p>运行程序<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
+<p>这里可以直接使用HelloWorld命令，而不给全它的路径，是因为其所在的$FOAM_USER_APPBIN目录已经在PATH环境变量里面了。</p>
+<h2 id="创建并链接动态库"><a href="#创建并链接动态库" class="headerlink" title="创建并链接动态库"></a>创建并链接动态库</h2><p>下面我们开始创建一个叫MyLib的动态链接库，里面有两个简单函数。之后在HelloWorld程序里面调用这两个库函数。</p>
+<p>MyLib库的源代码就在HelloWorld目录里面创建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mkdir MyLib</div></pre></td></tr></table></figure>
+<p>接着在MyLib目录里面创建库的源程序和头文件。首先看MyLib库的头文件，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.H</div></pre></td></tr></table></figure></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> MyLib_H</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MyLib_H</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"fvCFD.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funA</span><span class="params">()</span></span>;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funB</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
-<p>库的源文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.C</div></pre></td></tr></table></figure></p>
+<p>再看库的源文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/MyLib.C</div></pre></td></tr></table></figure></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MyLib.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funA</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    Info &lt;&lt; <span class="string">"I'm from MyLib, funA()"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">funB</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    Info &lt;&lt; <span class="string">"I'm from MyLib, funB()"</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>库的Make文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/Make/files</div></pre></td></tr></table></figure></p>
+<p>最后为这个库的写Make文件如下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/Make/files</div></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">MyLib.C</div><div class="line"></div><div class="line">LIB = $(FOAM_USER_LIBBIN)/libMyLib</div></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat MyLib/Make/options</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = -lfiniteVolume \</div><div class="line">           -lmeshTools</div></pre></td></tr></table></figure>
-<p>在HelloWorld的<code>Make/options</code>里面添加库位置(-L选项)、库头文件位置(-I)、库文件(-l)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/options</div></pre></td></tr></table></figure></p>
+<p>现在可以用wmake编译这个生成动态链接库了，在HelloWorld目录执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wmake libso MyLib</div></pre></td></tr></table></figure></p>
+<p>或者进入MyLib目录执行<code>wmake libso</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> </div><div class="line">$ wmake libso</div></pre></td></tr></table></figure></p>
+<p>都可以。编译成功后会提示生成的动态链接库文件会存放在$FOAM_USER_APPBIN目录。</p>
+<p>接下来我们在HelloWorld里面使用MyLib这个动态链接库的<code>funA()</code>和<code>funB()</code>函数。当然先要在HelloWorld.C里面包含头文件”MyLib.H”，<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"fvCFD.H"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MyLib.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    <span class="comment">// use dynamic library</span></div><div class="line">    funA();</div><div class="line">    funB();</div><div class="line">    ...</div></pre></td></tr></table></figure></p>
+<p>在HelloWorld的<code>Make/options</code>里面添加MyLib库的位置(-L选项)、库头文件位置(-I)、库文件(-l)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat Make/options</div></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">EXE_INC = \</div><div class="line">    -I$(LIB_SRC)/finiteVolume/lnInclude \</div><div class="line">    -I$(LIB_SRC)/meshTools/lnInclude \</div><div class="line">    -IMyLib/lnInclude</div><div class="line"></div><div class="line">EXE_LIBS = \</div><div class="line">    -L$(FOAM_USER_LIBBIN) \</div><div class="line">    -lfiniteVolume \</div><div class="line">    -lmeshTools \</div><div class="line">    -lMyLib</div></pre></td></tr></table></figure>
-<p>先编译动态链接库<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake libso MyLib</div></pre></td></tr></table></figure></p>
-<p>再编译HelloWorld<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake</div></pre></td></tr></table></figure></p>
-<p>最后运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="variable">$FOAM_USER_APPBIN</span>/HelloWorld</div></pre></td></tr></table></figure></p>
+<p>重新编译HelloWorld<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wmake</div></pre></td></tr></table></figure></p>
+<p>最后运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
 <p>输出如下结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div></pre></td></tr></table></figure></p>
 <p>DONE!!!</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citnxmizh00052onooznvczju" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citofslsy00050wnorp1mu9ij" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -268,7 +275,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="citnxmiz100002ono38opb7xk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="citofslsi00010wnoeh5regji" class="article-share-link">Share</a>
       
       
     </footer>
@@ -307,7 +314,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/cmake_find_boost_windows/" data-id="citnxmizh00022onovn0pz4l7" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/cmake_find_boost_windows/" data-id="citofslsi00020wnopo6wdolp" class="article-share-link">Share</a>
       
       
     </footer>
@@ -358,7 +365,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/install-boost-on-windows/" data-id="citnxmizh00042onoa780uqxi" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/install-boost-on-windows/" data-id="citofslsy00040wnoat135qn3" class="article-share-link">Share</a>
       
       
     </footer>
@@ -394,7 +401,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="citnxmiz100012onojkebfw0k" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="citofslsi00000wnoa5krzeme" class="article-share-link">Share</a>
       
       
     </footer>
@@ -439,7 +446,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/hello-world/" data-id="citnxmizh00032ono2yxxtjcs" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/hello-world/" data-id="citofslsy00030wno25i7a84k" class="article-share-link">Share</a>
       
       
     </footer>
