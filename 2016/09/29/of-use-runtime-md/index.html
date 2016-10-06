@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Lianhua Zhu's Blog">
 <meta property="og:description" content="接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的system/controlDict文件是如何跟我们的应用程序关联起来的。
 先看一个例子$FOAM_SOLVERS/basic/laplacianFoam这个求解Laplace方程的标准求解器里面的是">
-<meta property="og:updated_time" content="2016-09-29T14:02:45.169Z">
+<meta property="og:updated_time" content="2016-09-30T06:37:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OpenFOAM 使用Time 控制程序主循环">
 <meta name="twitter:description" content="接着上一个post OpenFOAM创建应用程序讲。上次的应用程序出了Info输出流是OpenFOAM提供的，其他的东西就是平白的C语言代码，跟OpenFOAM没有啥关系。这次来试试case目录里面的system/controlDict文件是如何跟我们的应用程序关联起来的。
@@ -109,6 +109,7 @@
 <p>然后就可以运行HelloWorld看看结果了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
 <p>程序输出的主要部分如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">Create time</div><div class="line"></div><div class="line">Hello world!</div><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div><div class="line">Starting time looping</div><div class="line">Running... Time = 0.1</div><div class="line">Running... Time = 0.2</div><div class="line">Running... Time = 0.3</div><div class="line">Running... Time = 0.4</div><div class="line">Running... Time = 0.5</div><div class="line">Running... Time = 0.6</div><div class="line">Running... Time = 0.7</div><div class="line">Running... Time = 0.8</div><div class="line">Running... Time = 0.9</div><div class="line">Running... Time = 1</div><div class="line">end!</div></pre></td></tr></table></figure></p>
 <p>现在可以用controlDict控制我们的HelloWorld的主循环了。注意这里用到的时固定时间步长循环的方法，后面我们会讲到利用CFL数(Conant数)控制可变时间步长的方法。</p>
+<p>访问当前步的时间步长可以用<code>Time.deltaValue()</code>函数, 如<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> scalar dt = runTime.deltaValue();</div></pre></td></tr></table></figure></p>
 <p>我们如果想在system/controlDict自定义新的控制参数，可以使用Time.controlDict()访问这些参数。下面我们分别在controlDict里面增加一个浮点数(testParameter)和一个整数参数(labelTp)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ tail  system/controlDict</div><div class="line">timePrecision   6;</div><div class="line"></div><div class="line">runTimeModifiable true;</div><div class="line"></div><div class="line">testParameter   1.4;</div><div class="line"></div><div class="line">labelTp   2;</div><div class="line"></div><div class="line"></div><div class="line">// ************************************************************************* //</div></pre></td></tr></table></figure></p>
 <p>在HelloWorld程序里面通过Time.controlDict()对象可以访问这些参数,<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// self-defined control parameter</span></div><div class="line">scalar tp =  runTime.controlDict().lookupOrDefault&lt;scalar&gt;(<span class="string">"testParameter"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"testParameter = "</span> &lt;&lt; tp &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">label ltp =  runTime.controlDict().lookupOrDefault&lt;label&gt;(<span class="string">"labelTp"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"labelTp = "</span> &lt;&lt; ltp &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
 <p>注意： OpenFOAM里面使用label表示正整数、使用scalar表示浮点数，而scalar默认就是double类型的。</p>
@@ -118,7 +119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citp2oqnc00099cnou8otw7da" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citycp6it0006lwuxifvmnd9w" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -195,11 +196,11 @@
           </li>
         
           <li>
-            <a href="/2016/09/26/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+            <a href="/2016/09/27/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
           </li>
         
           <li>
-            <a href="/2016/09/26/install-boost-on-windows/">在Windows上安装Boost</a>
+            <a href="/2016/09/27/install-boost-on-windows/">在Windows上安装Boost</a>
           </li>
         
       </ul>

@@ -107,6 +107,7 @@
 <p>然后就可以运行HelloWorld看看结果了：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ HelloWorld</div></pre></td></tr></table></figure></p>
 <p>程序输出的主要部分如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">Create time</div><div class="line"></div><div class="line">Hello world!</div><div class="line">Dear FOAMers,</div><div class="line">I come from Wuhan, China</div><div class="line">I&apos;m from MyLib, funA()</div><div class="line">I&apos;m from MyLib, funB()</div><div class="line">Starting time looping</div><div class="line">Running... Time = 0.1</div><div class="line">Running... Time = 0.2</div><div class="line">Running... Time = 0.3</div><div class="line">Running... Time = 0.4</div><div class="line">Running... Time = 0.5</div><div class="line">Running... Time = 0.6</div><div class="line">Running... Time = 0.7</div><div class="line">Running... Time = 0.8</div><div class="line">Running... Time = 0.9</div><div class="line">Running... Time = 1</div><div class="line">end!</div></pre></td></tr></table></figure></p>
 <p>现在可以用controlDict控制我们的HelloWorld的主循环了。注意这里用到的时固定时间步长循环的方法，后面我们会讲到利用CFL数(Conant数)控制可变时间步长的方法。</p>
+<p>访问当前步的时间步长可以用<code>Time.deltaValue()</code>函数, 如<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> scalar dt = runTime.deltaValue();</div></pre></td></tr></table></figure></p>
 <p>我们如果想在system/controlDict自定义新的控制参数，可以使用Time.controlDict()访问这些参数。下面我们分别在controlDict里面增加一个浮点数(testParameter)和一个整数参数(labelTp)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ tail  system/controlDict</div><div class="line">timePrecision   6;</div><div class="line"></div><div class="line">runTimeModifiable true;</div><div class="line"></div><div class="line">testParameter   1.4;</div><div class="line"></div><div class="line">labelTp   2;</div><div class="line"></div><div class="line"></div><div class="line">// ************************************************************************* //</div></pre></td></tr></table></figure></p>
 <p>在HelloWorld程序里面通过Time.controlDict()对象可以访问这些参数,<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// self-defined control parameter</span></div><div class="line">scalar tp =  runTime.controlDict().lookupOrDefault&lt;scalar&gt;(<span class="string">"testParameter"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"testParameter = "</span> &lt;&lt; tp &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">label ltp =  runTime.controlDict().lookupOrDefault&lt;label&gt;(<span class="string">"labelTp"</span>, <span class="number">2.0</span>);</div><div class="line">Info &lt;&lt; <span class="string">"labelTp = "</span> &lt;&lt; ltp &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
 <p>注意： OpenFOAM里面使用label表示正整数、使用scalar表示浮点数，而scalar默认就是double类型的。</p>
@@ -116,7 +117,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citp2oqnc00099cnou8otw7da" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citycp6it0006lwuxifvmnd9w" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -185,7 +186,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citp2oqmq00029cnoqsw7i3vz" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citycp6j10008lwuxcka1zj0f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -283,7 +284,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="citp2oqmn00019cno133g5ut3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="citycp6i30001lwuxbco6d1nh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -297,8 +298,8 @@
   
     <article id="post-cmake_find_boost_windows" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/09/26/cmake_find_boost_windows/" class="article-date">
-  <time datetime="2016-09-26T07:17:33.363Z" itemprop="datePublished">2016-09-26</time>
+    <a href="/2016/09/27/cmake_find_boost_windows/" class="article-date">
+  <time datetime="2016-09-26T16:20:30.187Z" itemprop="datePublished">2016-09-27</time>
 </a>
     
   </div>
@@ -309,7 +310,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/09/26/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+      <a class="article-title" href="/2016/09/27/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
     </h1>
   
 
@@ -324,7 +325,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/cmake_find_boost_windows/" data-id="citp2oqmh00009cnoc2aoxt7w" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/27/cmake_find_boost_windows/" data-id="citycp6i90002lwuxtdc6q3q4" class="article-share-link">Share</a>
       
       
     </footer>
@@ -336,8 +337,8 @@
   
     <article id="post-install-boost-on-windows" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/09/26/install-boost-on-windows/" class="article-date">
-  <time datetime="2016-09-26T06:40:20.042Z" itemprop="datePublished">2016-09-26</time>
+    <a href="/2016/09/27/install-boost-on-windows/" class="article-date">
+  <time datetime="2016-09-26T16:20:30.154Z" itemprop="datePublished">2016-09-27</time>
 </a>
     
   </div>
@@ -348,7 +349,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/09/26/install-boost-on-windows/">在Windows上安装Boost</a>
+      <a class="article-title" href="/2016/09/27/install-boost-on-windows/">在Windows上安装Boost</a>
     </h1>
   
 
@@ -375,7 +376,52 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/install-boost-on-windows/" data-id="citp2oqn600069cnodm0rcqnr" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/27/install-boost-on-windows/" data-id="citycp6iq0005lwuxfg2h0sup" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/09/27/hello-world/" class="article-date">
+  <time datetime="2016-09-26T16:19:02.644Z" itemprop="datePublished">2016-09-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/09/27/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/09/27/hello-world/" data-id="citycp6io0004lwuxmpxp4rh0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -411,52 +457,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="citp2oqn000049cnohlpvbj1v" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/09/26/hello-world/" class="article-date">
-  <time datetime="2016-09-26T06:32:06.177Z" itemprop="datePublished">2016-09-26</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/09/26/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/hello-world/" data-id="citp2oqn300059cno9nwbxext" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="citycp6hw0000lwux3pn5bwcz" class="article-share-link">Share</a>
       
       
     </footer>
@@ -522,11 +523,11 @@
           </li>
         
           <li>
-            <a href="/2016/09/26/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+            <a href="/2016/09/27/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
           </li>
         
           <li>
-            <a href="/2016/09/26/install-boost-on-windows/">在Windows上安装Boost</a>
+            <a href="/2016/09/27/install-boost-on-windows/">在Windows上安装Boost</a>
           </li>
         
       </ul>
