@@ -94,11 +94,10 @@
 <p>修改constant/polyMesh/blockMeshDict文件，把cell个数改为为（2 2 1），也就是X、Y方向各两个cell，Z方向一个cell， 并且把<code>convertToMeters</code>改成1。 如下</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">convertToMeters 1; //改动</div><div class="line"></div><div class="line">vertices</div><div class="line">(</div><div class="line">    (0 0 0)</div><div class="line">    (1 0 0)</div><div class="line">    (1 1 0)</div><div class="line">    (0 1 0)</div><div class="line">    (0 0 0.1)</div><div class="line">    (1 0 0.1)</div><div class="line">    (1 1 0.1)</div><div class="line">    (0 1 0.1)</div><div class="line">);</div><div class="line"></div><div class="line">blocks</div><div class="line">(</div><div class="line">    hex (0 1 2 3 4 5 6 7) (2 2 1) simpleGrading (1 1 1) //改动</div><div class="line">);</div><div class="line">...</div></pre></td></tr></table></figure>
 <p>使用<code>blockMesh</code>生成网格。现在constant/polyMesh目录下面就有那5个表示网格的文件了。 </p>
-<p>接下来还要准备<code>system/fvSchemes</code>文件和<code>system/fvSolutions</code>文件, 即使它们里面是空的，因为fvMesh的构造函数必须读取这两个文件。这里我们用的这两个文件内容(除去头部和尾部)分别是：<br>`bash<br>$ cat system/fvSchemes<br>…<br>gradSchemes<br>{<br>    default         none;<br>}</p>
-<p>divSchemes<br>{<br>    default         none;<br>}</p>
-<p>laplacianSchemes<br>{<br>    default         none;<br>}<br>…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">和</div></pre></td></tr></table></figure></p>
-<p>solvers<br>{<br>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">这已经是程序能初始化mesh所需要的最少的信息了，少了任何一条都不行。</div><div class="line"></div><div class="line"></div><div class="line">现在我们在HelloWorld程序里面增加如下几行代码，来输出每个cell的体积：</div><div class="line">```cpp</div><div class="line">#include &quot;fvCFD.H&quot;</div><div class="line">#include &quot;MyLib.H&quot;</div><div class="line"></div><div class="line">int main(int argc, char* argv[])</div><div class="line">&#123;</div><div class="line">    #include &quot;setRootCase.H&quot;</div><div class="line">    #include &quot;createTime.H&quot;</div><div class="line">    #include &quot;createMesh.H&quot;</div><div class="line"></div><div class="line">    ...</div><div class="line"></div><div class="line">    // mesh info</div><div class="line">    const scalarField&amp; V = mesh.V(); // cell volume</div><div class="line">    forAll(V, i) // forAll是OpenFOAM提供的对容器类循环的宏</div><div class="line">    &#123;</div><div class="line">        Info &lt;&lt; &quot;Volume of cell # &quot; &lt;&lt; i &lt;&lt; &quot;:  &quot; &lt;&lt; V[i] &lt;&lt; endl;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接下来还要准备<code>system/fvSchemes</code>文件和<code>system/fvSolutions</code>文件, 即使它们里面是空的，因为fvMesh的构造函数必须读取这两个文件。这里我们用的这两个文件内容(除去头部和尾部)分别是：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ cat system/fvSchemes</div><div class="line">...</div><div class="line">gradSchemes</div><div class="line">&#123;</div><div class="line">    default         none;</div><div class="line">&#125;</div><div class="line"></div><div class="line">divSchemes</div><div class="line">&#123;</div><div class="line">    default         none;</div><div class="line">&#125;</div><div class="line"></div><div class="line">laplacianSchemes</div><div class="line">&#123;</div><div class="line">    default         none;</div><div class="line">&#125;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>和<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">solvers</div><div class="line">&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这已经是程序能初始化mesh所需要的最少的信息了，少了任何一条都不行。</p>
+<p>现在我们在HelloWorld程序里面增加如下几行代码，来输出每个cell的体积：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"fvCFD.H"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MyLib.H"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"setRootCase.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createTime.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createMesh.H"</span></span></div><div class="line"></div><div class="line">    ...</div><div class="line"></div><div class="line">    <span class="comment">// mesh info</span></div><div class="line">    <span class="keyword">const</span> scalarField&amp; V = mesh.V(); <span class="comment">// cell volume</span></div><div class="line">    forAll(V, i) <span class="comment">// forAll是OpenFOAM提供的对容器类循环的宏</span></div><div class="line">    &#123;</div><div class="line">        Info &lt;&lt; <span class="string">"Volume of cell # "</span> &lt;&lt; i &lt;&lt; <span class="string">":  "</span> &lt;&lt; V[i] &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>这里的<code>const scalarField&amp; V = mesh.V()</code>就是获取mesh对象的所有cell体积，给一个scalarFiled类型的引用。scalrField其实是通过<code>typedef Field&lt;scalar&gt;</code>得到的, 这里初略的理解为一个标量元素的数组，并且可以用<code>[]</code>操作符取元素就够了。（Field&lt;&gt;只是OpenFOAM众多层次的容器类的一层）。 </p>
 <p>重新wmake编译，运行输出如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">Volume of cell # 0:  0.025</div><div class="line">Volume of cell # 1:  0.025</div><div class="line">Volume of cell # 2:  0.025</div><div class="line">Volume of cell # 3:  0.025</div></pre></td></tr></table></figure></p>
 <p>可以发现每个cell的体积都是<code>(1/2)*(1/2)*0.1 = 0.025</code>。</p>
@@ -141,7 +140,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/10/06/of-fvMesh/" data-id="cityd3ua50006ycuxqh9kx5y1" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/10/06/of-fvMesh/" data-id="citzdrrpp000alwuxdxlk68uh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -206,7 +205,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="cityd3uaa0008ycux3me6wz36" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-use-runtime-md/" data-id="citzdrrpm0008lwuxxr22uz4l" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -275,7 +274,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="cityd3ua70007ycuxbu759zul" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/29/of-hello-world/" data-id="citzdrrpg0006lwux6ygyf53b" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -373,7 +372,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="cityd3u9p0003ycuxsrwuj025" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/28/OpenFOAM-Learning-Resources/" data-id="citzdrroz0001lwuxmlhef0vv" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
@@ -414,7 +413,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/27/cmake_find_boost_windows/" data-id="cityd3u900000ycux591l0jze" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/27/cmake_find_boost_windows/" data-id="citzdrrp30002lwuxvav01q5i" class="article-share-link">Share</a>
       
       
     </footer>
@@ -465,7 +464,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/27/install-boost-on-windows/" data-id="cityd3u9q0004ycuxr86o9ngg" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/27/install-boost-on-windows/" data-id="citzdrrpe0005lwuxzad6a24q" class="article-share-link">Share</a>
       
       
     </footer>
@@ -510,7 +509,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/27/hello-world/" data-id="cityd3u9c0002ycuxkvj8grmr" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/27/hello-world/" data-id="citzdrrpc0004lwuxumlvdpvm" class="article-share-link">Share</a>
       
       
     </footer>
@@ -546,7 +545,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="cityd3u970001ycuxwnt6ukt4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/09/26/My-New-Post/" data-id="citzdrrot0000lwuxqyr1wba6" class="article-share-link">Share</a>
       
       
     </footer>
