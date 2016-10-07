@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenFOAM里面的网格对象（fvMesh） | Lianhua Zhu&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="上次讲到了Time对象，并介绍了我们的程序如何跟system/controlDict文件关联。这次我们介绍程序如何读取网格、网格文件在OpenFOAM里面如何表示、以及如何获取网格信息。
+程序如何读取网格上次介绍setTime.H时提到过，程序读取网格是通过在main函数开头用包含createMesh.H文件来实现的。 现在我们改动我们的HelloWorld程序，包含这个头文件，如下123456i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenFOAM里面的网格对象（fvMesh）">
+<meta property="og:url" content="http://yoursite.com/2016/10/06/of-fvMesh/index.html">
+<meta property="og:site_name" content="Lianhua Zhu's Blog">
+<meta property="og:description" content="上次讲到了Time对象，并介绍了我们的程序如何跟system/controlDict文件关联。这次我们介绍程序如何读取网格、网格文件在OpenFOAM里面如何表示、以及如何获取网格信息。
+程序如何读取网格上次介绍setTime.H时提到过，程序读取网格是通过在main函数开头用包含createMesh.H文件来实现的。 现在我们改动我们的HelloWorld程序，包含这个头文件，如下123456i">
+<meta property="og:image" content="http://yoursite.com/images/fvMeshData.png">
+<meta property="og:image" content="http://yoursite.com/images/of_mesh_faces.png">
+<meta property="og:image" content="http://yoursite.com/images/of_mesh_cellfaceid.png">
+<meta property="og:updated_time" content="2016-10-07T06:15:15.357Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenFOAM里面的网格对象（fvMesh）">
+<meta name="twitter:description" content="上次讲到了Time对象，并介绍了我们的程序如何跟system/controlDict文件关联。这次我们介绍程序如何读取网格、网格文件在OpenFOAM里面如何表示、以及如何获取网格信息。
+程序如何读取网格上次介绍setTime.H时提到过，程序读取网格是通过在main函数开头用包含createMesh.H文件来实现的。 现在我们改动我们的HelloWorld程序，包含这个头文件，如下123456i">
+<meta name="twitter:image" content="http://yoursite.com/images/fvMeshData.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Lianhua Zhu&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lianhua Zhu&#39;s Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-of-fvMesh" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/10/06/of-fvMesh/" class="article-date">
+  <time datetime="2016-10-06T13:11:04.000Z" itemprop="datePublished">2016-10-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OpenFOAM里面的网格对象（fvMesh）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>上次讲到了Time对象，并介绍了我们的程序如何跟<code>system/controlDict</code>文件关联。这次我们介绍程序如何读取网格、网格文件在OpenFOAM里面如何表示、以及如何获取网格信息。</p>
+<h2 id="程序如何读取网格"><a href="#程序如何读取网格" class="headerlink" title="程序如何读取网格"></a>程序如何读取网格</h2><p>上次介绍<code>setTime.H</code>时提到过，程序读取网格是通过在main函数开头用包含<code>createMesh.H</code>文件来实现的。 现在我们改动我们的HelloWorld程序，包含这个头文件，如下<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></div><div class="line">&#123;</div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"setRootCase.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createTime.H"</span></span></div><div class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"createMesh.H"</span></span></div><div class="line">    ...</div></pre></td></tr></table></figure></p>
+<p><code>createMesh.H</code>文件位于<code>$FOAM_SRC/OpenFOAM/include/</code>。 我们可以看看其内容是<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">// createMesh.H</div><div class="line">// ~~~~~~~~~~~~</div><div class="line"></div><div class="line">    Foam::Info</div><div class="line">        &lt;&lt; "Create mesh for time = "</div><div class="line">        &lt;&lt; runTime.timeName() &lt;&lt; Foam::nl &lt;&lt; Foam::endl;</div><div class="line"></div><div class="line">    Foam::fvMesh mesh</div><div class="line">    (</div><div class="line">        Foam::IOobject</div><div class="line">        (</div><div class="line">            Foam::fvMesh::defaultRegion,</div><div class="line">            runTime.timeName(),</div><div class="line">            runTime,</div><div class="line">            Foam::IOobject::MUST_READ</div><div class="line">        )</div><div class="line">    );</div></pre></td></tr></table></figure></p>
+<p>可以发现其实是创建了一个fvMesh对象，叫做mesh。 创建这个fvMesh对象的时候程序读取了<code>constant/polyMesh/</code>目录下面的<br><code>points</code>、<code>faces</code>、<code>owner</code>、<code>neighbour</code>和<code>boundary</code>这5个文件。这5个文件就是OpenFOAM存储网格的文件。它们可以用blockMesh生成，也可以用前处理工具从其他格式的网格文件转换得到（比如用fluentMeshtoFoam、gmshToFoam等等）。 有了这个对象，我们就可以从这个对象获得网格的所有信息（如cell center的坐标、cell的体积等等），这些信息在创建fvMesh对象时，其构造函数就以自动计算好了。</p>
+<p>下面举个例子，看看如何获得每个cell 的体积。 简单起见，首先我们准备好一个简单的网格，直接从官方教程的cavity case里面复制blockMeshDict到我们之间创建的HelloWorld case过来：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> <span class="variable">$FOAM_RUN</span>/HelloWorld    <span class="comment">#进入之前我们创建的helloWorld case目录</span></div><div class="line">mkdir -p constant/polyMesh <span class="comment">#先创建这个目录</span></div><div class="line">cp <span class="variable">$FOAM_TUTORIALS</span>/incompressible/icoFoam/cavity/constant/polyMesh/blockMeshDict  constant/polyMesh/blockMeshDict <span class="comment">#复制blockMeshDict</span></div></pre></td></tr></table></figure></p>
+<p>修改constant/polyMesh/blockMeshDict文件，把cell个数改为为（2 2 1），也就是X、Y方向各两个cell，Z方向一个cell， 并且把<code>convertToMeters</code>改成1。 如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">convertToMeters 1; //改动</div><div class="line"></div><div class="line">vertices</div><div class="line">(</div><div class="line">    (0 0 0)</div><div class="line">    (1 0 0)</div><div class="line">    (1 1 0)</div><div class="line">    (0 1 0)</div><div class="line">    (0 0 0.1)</div><div class="line">    (1 0 0.1)</div><div class="line">    (1 1 0.1)</div><div class="line">    (0 1 0.1)</div><div class="line">);</div><div class="line"></div><div class="line">blocks</div><div class="line">(</div><div class="line">    hex (0 1 2 3 4 5 6 7) (2 2 1) simpleGrading (1 1 1) //改动</div><div class="line">);</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>使用<code>blockMesh</code>生成网格。现在constant/polyMesh目录下面就有那5个表示网格的文件了。 </p>
+<p>接下来还要准备<code>system/fvSchemes</code>文件和<code>system/fvSolutions</code>文件, 即使它们里面是空的，因为fvMesh的构造函数必须读取这两个文件。这里我们用的这两个文件内容(除去头部和尾部)分别是：<br>`bash<br>$ cat system/fvSchemes<br>…<br>gradSchemes<br>{<br>    default         none;<br>}</p>
+<p>divSchemes<br>{<br>    default         none;<br>}</p>
+<p>laplacianSchemes<br>{<br>    default         none;<br>}<br>…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">和</div></pre></td></tr></table></figure></p>
+<p>solvers<br>{<br>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">这已经是程序能初始化mesh所需要的最少的信息了，少了任何一条都不行。</div><div class="line"></div><div class="line"></div><div class="line">现在我们在HelloWorld程序里面增加如下几行代码，来输出每个cell的体积：</div><div class="line">```cpp</div><div class="line">#include &quot;fvCFD.H&quot;</div><div class="line">#include &quot;MyLib.H&quot;</div><div class="line"></div><div class="line">int main(int argc, char* argv[])</div><div class="line">&#123;</div><div class="line">    #include &quot;setRootCase.H&quot;</div><div class="line">    #include &quot;createTime.H&quot;</div><div class="line">    #include &quot;createMesh.H&quot;</div><div class="line"></div><div class="line">    ...</div><div class="line"></div><div class="line">    // mesh info</div><div class="line">    const scalarField&amp; V = mesh.V(); // cell volume</div><div class="line">    forAll(V, i) // forAll是OpenFOAM提供的对容器类循环的宏</div><div class="line">    &#123;</div><div class="line">        Info &lt;&lt; &quot;Volume of cell # &quot; &lt;&lt; i &lt;&lt; &quot;:  &quot; &lt;&lt; V[i] &lt;&lt; endl;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">    return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里的<code>const scalarField&amp; V = mesh.V()</code>就是获取mesh对象的所有cell体积，给一个scalarFiled类型的引用。scalrField其实是通过<code>typedef Field&lt;scalar&gt;</code>得到的, 这里初略的理解为一个标量元素的数组，并且可以用<code>[]</code>操作符取元素就够了。（Field&lt;&gt;只是OpenFOAM众多层次的容器类的一层）。 </p>
+<p>重新wmake编译，运行输出如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">Volume of cell # 0:  0.025</div><div class="line">Volume of cell # 1:  0.025</div><div class="line">Volume of cell # 2:  0.025</div><div class="line">Volume of cell # 3:  0.025</div></pre></td></tr></table></figure></p>
+<p>可以发现每个cell的体积都是<code>(1/2)*(1/2)*0.1 = 0.025</code>。</p>
+<p>类似的，还可以获取cell center坐标、face center坐标、face的法向量和面积等几何信息，如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">   <span class="keyword">const</span> vectorField&amp; C = mesh.C(); <span class="comment">// cell center coordinate</span></div><div class="line">   forAll(C, i)</div><div class="line">   &#123;</div><div class="line">       Info &lt;&lt; <span class="string">"Center of cell # "</span> &lt;&lt; i &lt;&lt; <span class="string">":  "</span> &lt;&lt; C[i] &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">   &#125;</div><div class="line">   <span class="keyword">const</span> vectorField&amp; Cf = mesh.Cf(); <span class="comment">// face center coordinate</span></div><div class="line">   forAll(Cf, i)</div><div class="line">   &#123;</div><div class="line">       Info &lt;&lt; <span class="string">"Center of face # "</span> &lt;&lt; i &lt;&lt; <span class="string">":  "</span> &lt;&lt; Cf[i] &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">   &#125;</div><div class="line">   <span class="keyword">const</span> vectorField&amp; Sf = mesh.Sf(); <span class="comment">// face normal</span></div><div class="line">   forAll(Sf, i)</div><div class="line">   &#123;</div><div class="line">       Info &lt;&lt; <span class="string">"Normal of internal face # "</span> &lt;&lt; i &lt;&lt; <span class="string">":  "</span> &lt;&lt; Sf[i] &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">   &#125;</div><div class="line">   ...</div></pre></td></tr></table></figure></p>
+<p>下面这个表格列出了获取网格的一些基本几何信息的函数：<br><img src="/images/fvMeshData.png" alt=""></p>
+<p>我们暂时先在这里停住，在最后一节再演示如何获取网格的其他信息（数据信息和拓扑信息）。 接下来我们看看任意非结构网格在OpenFOAM内部是如何表示的。</p>
+<h2 id="网格在OpenFOAM里面如何表示"><a href="#网格在OpenFOAM里面如何表示" class="headerlink" title="网格在OpenFOAM里面如何表示"></a>网格在OpenFOAM里面如何表示</h2><p>我们开始以刚才的<code>2*2*1</code>的网格为例来说明。 <code>constant/polyMesh</code>目录下面的5个文件内容分布是：</p>
+<ul>
+<li><code>points</code> : 记录所有的网格顶点，每个点都是由三个分量组成的（三维空间坐标）。 本例中一共有<code>3*3*2</code> = 18个点。</li>
+<li><code>faces</code>  : 记录所有的face和组成每个face的顶点编号（就是出现在<code>points</code>里面所有顶点中的次序）。对于本例，一共有20个face，包含了内部face （internal face）和位于边界上的face（boundary face）。 </li>
+<li><code>boundary</code>: 记录每个boundary patch的信息，包括patch的名字，类型、所包含的face的个数n，以及这些face在所有face中的开始位置（也就是此patch中第一个face出现在<code>face</code>记录的face列表里面的次序）。 每个boundary patch中的face编号在<code>faces</code>中是连续的。 <code>faces</code> 中开头记录的face是internal face。下图展示的是之前例子中的boundary和face：</li>
+</ul>
+<p><img src="/images/of_mesh_faces.png" alt=""><br>这里有4个internal face和3个boundary patch，分别是， movingWall（2个face）， fixedWall（6个face）， frontAandBack（8个face）。</p>
+<p>在介绍剩下的两个文件<code>owner</code>和<code>neighbour</code>之前，有必要介绍OpenFOAM网格里面的face的owner和neighbour的概念。 无论网格多么复杂，有一个基本特点或者说是要求是： 除了boundary face外的每个face （也就是internal face） 被且仅被两个cell共享。这两个cell分别称为这个face的owner cell和neighbour cell。 规定这个这个face的法向量从owner指向neighbour。 boundary face也有owner cell，但是没有neighbour cell，因为boundary face的法向量指向了计算区域外部，那里没有cell了。现在再看<code>owner</code>和<code>neighbour</code>文件就简单了：</p>
+<ul>
+<li><code>owner</code>文件记录了一个整型数组，第i个元素表示第i个face(<strong>包括boundary face</strong>)的owner cell的在所有cell中的编号(cell ID)，数组大小等于所有face的个数（本例是20）。</li>
+<li><code>neighbour</code>文件记录了一个整型数组，第i个元素表示第i个<strong>internal face</strong>的neighbour cell的在所有cell中的编号(cell ID)，数组大小等于所有internal face的个数（本例是4）。</li>
+</ul>
+<h2 id="获取网格信息"><a href="#获取网格信息" class="headerlink" title="获取网格信息"></a>获取网格信息</h2><p>之前我们介绍了如何通过<code>V()</code>、<code>C()</code>、<code>Cf()</code>等函数获取一些基本的几何信息，现在我们看如何怎样获取一个face的owner cellID和neighbour cellID。直接看代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// find owner cell and neighbour cell of internal faces</span></div><div class="line"><span class="keyword">const</span> labelUList&amp; owner = mesh.owner(); <span class="comment">// labelUList是一个存贮label的容器。</span></div><div class="line"><span class="keyword">const</span> labelUList&amp; neighbour = mesh.neighbour();</div><div class="line"><span class="comment">// loop over ONLY internal face to find owner and neighbour</span></div><div class="line">forAll(owner, facei) <span class="comment">//注意这里的owner只存了internal face的owner cellID</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">const</span> label own = owner[facei];</div><div class="line">    <span class="keyword">const</span> label nei = neighbour[facei];</div><div class="line">    Info &lt;&lt; <span class="string">"face # "</span> &lt;&lt; facei &lt;&lt; <span class="string">"'s own: "</span> &lt;&lt; own</div><div class="line">        &lt;&lt; <span class="string">", nei: "</span> &lt;&lt; nei &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码输出的是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">face # 0&apos;s own: 0, nei: 1</div><div class="line">face # 1&apos;s own: 0, nei: 2</div><div class="line">face # 2&apos;s own: 1, nei: 3</div><div class="line">face # 3&apos;s own: 2, nei: 3</div></pre></td></tr></table></figure></p>
+<p>现在我们可以验证一下到底是不是这样的， 通过刚刚介绍的<code>C()</code>、    <code>Cf()</code>、<code>Sf()</code>函数输出的位置等信息，我们可以找到每个cell和face的编号以及每个face的法向量如下：</p>
+<p><img src="/images/of_mesh_cellfaceid.png" alt=""><br>对比刚刚输出的结果可以发现确实是这样。</p>
+<p>回到刚才插入的代码，可以发现 <code>fvMesh.owner()</code>和 <code>fvMesh.neighbour()</code>函数可以获取与每个internal face的owner cellID和neighbour cellID。注意这里的<code>owner()</code>返回的数组不包含boundary face的cell ID，这也可以从上例中<code>forAll(owner, facei)</code>只循环4次（4个internal face）可以看出。 </p>
+<p>那要怎么知道每个boundary face的owner cellID （也就跟这个bounary face相邻的那个cell的编号）呢，毕竟这个信息在处理边界时必须知道。 下面这段代码就是答案</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// loop over boundary faces, except empty boundaries</span></div><div class="line">forAll(mesh.boundary(), patchi) <span class="comment">//这里对每个bounary patch循环，mesh.boundary()返回boundary patch的数组，不包含empty类型的boundary patch。</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">const</span> labelUList&amp; pOwner = mesh.boundary()[patchi].faceCells(); <span class="comment">// faceCell函数</span></div><div class="line">    forAll(pOwner, facei)</div><div class="line">    &#123;</div><div class="line">        Info &lt;&lt; <span class="string">"Boundary patch #"</span> &lt;&lt; patchi</div><div class="line">            &lt;&lt; <span class="string">"'s face "</span> &lt;&lt; <span class="string">"#"</span> &lt;&lt; facei &lt;&lt; <span class="string">"'s owner cell : "</span></div><div class="line">            &lt;&lt;  pOwner[facei] &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里是打印出了每个boundary patch的每个face的onwer cellID，所以有两层forAll循环。 boundary patch的所有face的owner cellID数组是通过faceCells()函数获取的。<br>这段代码的输出是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Boundary patch #0&apos;s face #0&apos;s owner cell : 2</div><div class="line">Boundary patch #0&apos;s face #1&apos;s owner cell : 3</div><div class="line">Boundary patch #1&apos;s face #0&apos;s owner cell : 0</div><div class="line">Boundary patch #1&apos;s face #1&apos;s owner cell : 2</div><div class="line">Boundary patch #1&apos;s face #2&apos;s owner cell : 1</div><div class="line">Boundary patch #1&apos;s face #3&apos;s owner cell : 3</div><div class="line">Boundary patch #1&apos;s face #4&apos;s owner cell : 0</div><div class="line">Boundary patch #1&apos;s face #5&apos;s owner cell : 1</div></pre></td></tr></table></figure></p>
+<p>这里的0号bounary patch是movingWall，1号boundary patch是fixedWall。可以看到这里并没有处理因为计算1D/2D问题而声明的empty类型的boundary patch （frontAndBack），事实上，我在写CFD程序时也确实不需要处理empty patch，因为从一个empty patch的某个face上流入的必然等于从其相对那个face上流出的，其合贡献为0。</p>
+<p>除了faceCell()函数外，还可以获取boundary patch的更多信息，比如name，start（该patch第一个face中在所有的face中的位置）。更多信息可以查看<br><code>$FOAM_SRC/finiteVolume/fvMesh/fvPatches/fvPatch/fvPatch.H</code>文件。 </p>
+<p>至于为什么是这个文件，我们可以浏览源代码顺藤摸瓜搞清楚这里面的boundary patch和mesh的关系以及其中涉及到的类和相应的文件。 很多时候浏览源代码也可以获得很多信息。</p>
+<p>首先这里的mesh.boundary()返回的对象类类型是<code>fvBoundaryMesh</code>, 这可以从fvMesh的头文件<br><code>$FOAM_SRC/finiteVolume/fvMesh/fvMesh.H</code>中boundary()的函数声明看到：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//- Return reference to boundary mesh</span></div><div class="line"><span class="function"><span class="keyword">const</span> fvBoundaryMesh&amp; <span class="title">boundary</span><span class="params">()</span> <span class="keyword">const</span></span>;</div></pre></td></tr></table></figure></p>
+<p>在去查找<code>fvBoundaryMesh</code>类的头文件<code>$FOAM_SRC/finiteVolume/fvMesh/fvBoundaryMesh/fvBoundaryMesh.H</code>发现它是继承自<code>fvPatchList</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="keyword">class</span> fvBoundaryMesh</div><div class="line">:</div><div class="line">    <span class="keyword">public</span> fvPatchList</div><div class="line">&#123;</div><div class="line">    <span class="comment">// Private data</span></div><div class="line">...</div></pre></td></tr></table></figure>
+<p>而fvPatchList的声明是通过typedef实现的, 在<code>$FOAM_SRC/finiteVolume/fvMesh/fvPatches/fvPatch/fvPatchList.H</code>可以看到<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typedef</span> PtrList&lt;fvPatch&gt; fvPatchList;</div></pre></td></tr></table></figure></p>
+<p>可以看到fvPatchList就是一个fvPatch的指针数组（<code>PtrList</code>）。现在去看看<code>fvPatch</code>类的头文件，在<code>$FOAM_SRC/finiteVolume/fvMesh/fvPatches/fvPatch/fvPatch.H</code>。<br>这里的fvPatch指的就是我们说的boundary patch。  其Access类型的函数可以返回诸多我们感兴趣的数据，比如<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">         <span class="comment">//- Return name</span></div><div class="line">         <span class="function"><span class="keyword">const</span> word&amp; <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">         &#123;</div><div class="line">             <span class="keyword">return</span> polyPatch_.name();</div><div class="line">         &#125;</div><div class="line">         ...</div><div class="line">         <span class="comment">//- Return size</span></div><div class="line">         <span class="function"><span class="keyword">virtual</span> label <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span></div><div class="line">         &#123;</div><div class="line">             <span class="keyword">return</span> polyPatch_.size();</div><div class="line">         &#125;</div><div class="line">         ...</div><div class="line"></div><div class="line">     <span class="comment">// Access functions for geometrical data</span></div><div class="line"></div><div class="line">         <span class="comment">//- Return face centres</span></div><div class="line">         <span class="function"><span class="keyword">const</span> vectorField&amp; <span class="title">Cf</span><span class="params">()</span> <span class="keyword">const</span></span>;</div><div class="line"></div><div class="line">         <span class="comment">//- Return neighbour cell centres</span></div><div class="line">         tmp&lt;vectorField&gt; Cn() <span class="keyword">const</span>;</div><div class="line"></div><div class="line">         <span class="comment">//- Return face area vectors</span></div><div class="line">         <span class="function"><span class="keyword">const</span> vectorField&amp; <span class="title">Sf</span><span class="params">()</span> <span class="keyword">const</span></span>;</div><div class="line"></div><div class="line">         ...</div></pre></td></tr></table></figure></p>
+<p>有时候在写后处理程序时希望通过boundary patch的名字找到boundary patch的编号，这可以通过fvBondaryMesh提供的findPatchID函数实现，<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//- Find patch index given a name</span></div><div class="line"><span class="function">label <span class="title">findPatchID</span><span class="params">(<span class="keyword">const</span> word&amp; patchName)</span> <span class="keyword">const</span></span>;</div></pre></td></tr></table></figure></p>
+<p>举个例子，我们希望找到HelloWorld case里面的fixedWall对应的boundary patch编号，可以用下面的代码实现：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// find patch ID by name</span></div><div class="line">Info &lt;&lt; <span class="string">"Patch fixedWalls's patchID = "</span> &lt;&lt; mesh.boundary().findPatchID(<span class="string">"fixedWalls"</span>) &lt;&lt; <span class="built_in">endl</span>;</div></pre></td></tr></table></figure></p>
+<p>程序输出是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Patch fixedWalls&apos;s patchID = 1</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/10/06/of-fvMesh/" data-id="cityd3ua50006ycuxqh9kx5y1" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/09/29/of-use-runtime-md/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">OpenFOAM 使用Time 控制程序主循环</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenFOAM/">OpenFOAM</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/OpenFOAM/" style="font-size: 10px;">OpenFOAM</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/10/06/of-fvMesh/">OpenFOAM里面的网格对象（fvMesh）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/29/of-use-runtime-md/">OpenFOAM 使用Time 控制程序主循环</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/29/of-hello-world/">OpenFOAM 创建程序和使用动态链接库</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/28/OpenFOAM-Learning-Resources/">OpenFOAM 学习资料</a>
+          </li>
+        
+          <li>
+            <a href="/2016/09/27/cmake_find_boost_windows/">在Windows平台的CMAKE里面使用Boost</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lianhua Zhu<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
